@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>1693</title>
+    <link rel="stylesheet" href="https://draftjs.org/lib/Draft.css">
+  </head>
+  <body>
+    <div id="target"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.7.6/immutable.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.3/es6-shim.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/draft-js/0.10.5/Draft.js"></script>
+    <script type="text/babel">
+      'use strict';
+
+      const {Editor, EditorState, convertFromRaw} = Draft;
+
+      class CustomBlockComponent extends React.Component{
+        constructor(props) {
+          super(props);
+
+          this.state = {editorState: EditorState.createWithContent(convertFromRaw(this.getCustomContent()))};
+        }
+        
+        getCustomContent(){
+          return {
+            entityMap: {},
+            blocks: [
+                {
+                    key: "",
+                    text: "nested first line",
+                    type: "unstyled",
+                    depth: 0,
+                    inlineStyleRanges: [],
+                    entityRanges: [],
+                    data: {},
+                },
+                {
+                    key: "",
+                    text: "nested another line",
+                    type: "unstyled",
+                    depth: 0,
+                    inlineStyleRanges: [],
+                    entityRanges: [],
+                    data: {},
+                },
+            ] // blocks
+
+          }
+        }
+
+        render(){
+          const blockStyle = { backgroundColor: 'gray' };
+          return (
+            <div style={blockStyle}>
+              <div style={{color: 'red'}}>some text</div>
+              <Editor 
+                readOnly={true}
+                editorState={this.state.editorState}
+              />
+            </div>
+            );
+        }        
+      }
+
+      class MyEditor extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {editorState: EditorState.createWithContent(convertFromRaw(this.getCustomContent()))};
+          this.onChange = (editorState) => this.setState({editorState});
+          this.blockRender = this.blockRender.bind(this);
+        }
+
+        getCustomContent(){
+          return {
+            entityMap: {},
+            blocks: [
+                {
+                    key: "",
+                    text: "first line",
+                    type: "unstyled",
+                    depth: 0,
+                    inlineStyleRanges: [],
+                    entityRanges: [],
+                    data: {},
+                },
+                {
+                    key: "",
+                    text: "",
+                    type: "myblock",
+                    depth: 0,
+                    inlineStyleRanges: [],
+                    entityRanges: [],
+                    data: {},
+                },
+                {
+                    key: "",
+                    text: "another line",
+                    type: "unstyled",
+                    depth: 0,
+                    inlineStyleRanges: [],
+                    entityRanges: [],
+                    data: {},
+                }
+            ] // blocks
+
+          }
+        }
+
+        blockRender(contentBlock) {
+          if (contentBlock.type === 'myblock'){
+            return {
+                        component: CustomBlockComponent,
+                        editable: false
+                    };
+
+          }
+        }
+        render() {
+          return (
+              <Editor
+                editorState={this.state.editorState}
+                onChange={this.onChange}
+                blockRendererFn={this.blockRender} 
+              />
+          );
+        }
+      }
+
+      ReactDOM.render(
+        <MyEditor />,
+        document.getElementById('target')
+      );
+    </script>
+  </body>
+</html>
